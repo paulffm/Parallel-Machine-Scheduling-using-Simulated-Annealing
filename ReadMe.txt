@@ -1,4 +1,13 @@
-Benutzung des Programms
+Parallel Machine Scheduling using Simulated Annealing (NP-Hard)
+
+Goal: Minimal Energy consumption and minimial processing time
+Properties: 
+- different processing time for each job on each machine
+- different sequence dependent setup time for each job on each machine
+- different run on-time for each job on each machine 
+- different release time for each job
+
+Benutzung des Programms:
 costmain.m:
 
 Die Simulation der Maschinenbelegung erfolgt in costmain. Dort werden zuerst die die Startparameter gesetzt:
