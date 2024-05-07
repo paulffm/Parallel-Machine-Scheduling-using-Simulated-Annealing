@@ -13,75 +13,79 @@ Properties:
   <img src="scheduling_time.jpg"  alt="1" width = 560px height = 420px >
 </p>
 
-## Usage:
+# Usage:
+
 ### costmain.m:
 
-Die Simulation der Maschinenbelegung erfolgt in costmain. Dort werden zuerst die die Startparameter gesetzt:
+The simulation of machine allocation is performed in `costmain`. The initial parameters are set as follows:
 
-MaxIt steht für die Iterationsanzahl
-MaxIt2 steht für die Anzahl, wie oft eine neue Lösung pro Integration erzeugt und verglichen werden soll (m x n)
-(Die Berechnungen wurden mit MaxIt=200-400 und MaxIt2=80 durchgeführt)
+- `MaxIt`: Number of iterations
+- `MaxIt2`: Number of times a new solution per integration is generated and compared (m x n)
+  (Calculations were conducted with `MaxIt=200-400` and `MaxIt2=80`)
 
-Mit b wird die Zielfunktion spezifiziert: Q=Z*b+(1-b)*E
+The objective function `Q=Z*b+(1-b)*E` is specified with `b`.
 
-Die Starttemperatur T0 und die Abkühlungsrate alpha sind abhängig von der gewählten Startfunktion. 
-BSP: (Teilweise leichte Veränderungen bei verschiedenen Endgeräten) 
-Für b=1: 	T0=105 alpha=0.8
-Für b=0.95 	T0=100 alpha=0.8
-Für b=0.8 	T0=100 alpha=0.8
-Für b=0: 	T0=500 alpha=0.8
+The initial temperature `T0` and the cooling rate `alpha` depend on the chosen starting function.
+Example: (Slight variations may occur on different devices)
+  - For b=1: `T0=105`, `alpha=0.8`
+  - For b=0.95: `T0=100`, `alpha=0.8`
+  - For b=0.8: `T0=100`, `alpha=0.8`
+  - For b=0: `T0=500`, `alpha=0.8`
 
-Danach wird mit genModel das Modell mit den angegeben Daten generiert. Anschließend wird eine Zufallslösung mit genSol erzeugt und dessen Verbrauch und Zykluszeit mit calcCost berechnet.
+The model with the specified data is generated with `genModel`, and then a random solution is created with `genSol`, followed by calculating its consumption and cycle time with `calcCost`.
 
-Darauf beginnt die eigentliche Optimierung mit SA. Die Startparameter und die Startlösung wird in die Funktion als Input gegeben. Dann wird aus aus der Startlösung mit genNeigbor eine neue Lösung generiert und diese hinsichtlich des Zielfunktionswertes mit der besten Lösung verglichen. Dies wird so lange wiederholt bis die maximale Iterationsanzahl erreicht ist.
+The actual optimization starts with `SA`. The initial parameters and solution are passed as input to the function. A new solution is generated from the initial solution with `genNeighbor`, and it is compared with the best solution in terms of the objective function value. This process continues until the maximum number of iterations is reached.
 
-Dann erfolgt eine weitere Abfrage:
+Then, another check is performed:
 
-Falls nur nach der Zykluszeit/Energieverbrauch minimiert wird und mehrere Maschinenbelegungspläne die gleiche minimale Zykluszeit/Energieverbrauch besitzen, dann berechnet die Funktion calcBestTimeandCost den Plan mit dem geringsten Energieverbrauch/Zykluszeit bei minimaler Zykluszeit/Energieverbrauch. 
+If only the cycle time/energy consumption is minimized and multiple machine allocation plans have the same minimum cycle time/energy consumption, the function `calcBestTimeandCost` calculates the plan with the lowest energy consumption/cycle time at minimal cycle time/energy consumption.
 
-Für andere Werte von b, wird lediglich die minimale Zielfunktion Q berechnet und die Diagramme der Belegung ausgegeben
+For other values of `b`, only the minimum objective function `Q` is calculated, and the allocation diagrams are output.
 
 ### genModel.m:
-In genModel sind die Daten des Belegungsproblems gespeichert. Mit Aufruf dieser Funktion wird ein struct Model erzeugt.
+
+`genModel` stores the data of the allocation problem. Calling this function generates a struct `Model`.
 
 ### genSol.m:
-Hier wird die erste zulässige Lösung generiert. Dazu wird eine Matrix schedule und eine Matrix Order erzeugt. 
 
-In schedule steht die Spaltenzahl für die den Auftrag und der Inhalt dieses Feldes für die Allokation der Maschine.
-BSP: schedule=[2 4 3 ... 2 4 3]
+The first feasible solution is generated here. A matrix `schedule` and a matrix `Order` are created.
 
-Der 1. Auftrag ist auf Maschine 2 allokiert, der 2. Auftrag auf Maschine 4, der 3. Auftrag auf Maschine 3 und so weiter.
+In `schedule`, the column number represents the order, and its content represents the allocation of the machine.
+Example: `schedule=[2 4 3 ... 2 4 3]`
+  - The 1st order is allocated on machine 2, the 2nd order on machine 4, the 3rd order on machine 3, and so on.
 
-In order wird die Reihenfolge der Aufträge auf der Maschine spezifiziert.
+In `Order`, the order of the tasks on the machine is specified.
+Example: `order=[7 15 9 ... 19 11 14]`
+  - Task 1 is allocated in position 7 on machine 2, task 2 in position 15 on machine, task 3 in position 9 on machine 3, and so on.
 
-BSP: order=[7 15 9 ... 19 11 14]
-Auftrag 1 wird an 7. Stelle auf Maschine 2 allokiert, Auftrag 2 an 15. Stelle auf Maschine, Auftrag 3 an 9. Stelle auf Maschine 3 und so weiter.
-
-Mit diesen beiden Matrizen wird nun eine neue Matrix L entwickelt. In dieser stehen nun alle Aufträge auf einer Maschine in der vorgegebenen Reihenfolge von Order. Anschließend werden aus L noch die Nullzeilen gestrichen und es wird ein Cell daraus gemacht, welches genauso wie schedule und order in Sol gespeichert werden.
+With these two matrices, a new matrix `L` is developed. This matrix now contains all tasks on one machine in the specified order from `Order`. Then, the zero rows are removed from `L`, and it is converted to a cell, which is stored in `Sol`, just like `schedule` and `order`.
 
 ### calcTarget.m:
-In calctarget werden zuerst alle notwendigen Daten aus model und sol geholt. Dann wird der Wert der Zielfunktionswert über die Allokationsmatrix berechnet. 
-Eine Maschine wird dabei erst angeschaltet, wenn der erste Auftrag auf dieser freigegeben ist und die Rüstzeit für den ersten Auftrag auf einer Maschine beträgt zur Vereinfachung 0.
-Die berechneten Werte werden wieder in einem Struct gespeichert.
+
+First, all necessary data from `model` and `sol` are retrieved. Then, the value of the objective function is calculated via the allocation matrix. A machine is only turned on when the first task is released on it, and the setup time for the first task on a machine is assumed to be 0 for simplification. The calculated values are stored again in a struct.
 
 ### simulatedannealing.m:
-Zunächst wird durch genNeighbor aus der besten bisherigen Lösung eine neue Lösung erzeugt. Diese wird daraufhin hinsichtlich des Zielfunktionswertes mit der bisherigen besten Lösung verglichen. Falls die neue Lösung einen besseren Zielfunktionswert hat, wird diese als neue beste Lösung angenommen. Anschließend wird die Temperatur reduziert und der Vorgang so lange wiederholt, bis das Abbruchkriterium erreicht ist.
+
+Initially, a new solution is generated from the best solution so far using `genNeighbor`. This new solution is then compared with the previous best solution in terms of the objective function value. If the new solution has a better objective function value, it is accepted as the new best solution. Then, the temperature is reduced, and the process is repeated until the termination criterion is met.
 
 ### genNeighbor.m:
-In genNeighbor werden zur Erzeugung neuer Lösungen Swap- und Insertionmethoden auf die Matrix order und schedule angewandt.
+
+In `genNeighbor`, swap and insertion methods are applied to the `order` and `schedule` matrices to generate new solutions.
 
 ### calcBestTimeandCost.m:
-Falls mehrere Pläne, die gleiche minimale Zykluszeit/den minimalen
-Verbrauch haben, findet die Funktion den Plan mit geringsten
-Verbrauch/geringster Zeit. Dieser Belegungsplan wird anschließend als neuer Lösungsstruct gespeichert.
+
+If multiple plans have the same minimal cycle time/minimum consumption, the function finds the plan with the lowest consumption/lowest time. This allocation plan is then saved as a new solution struct.
 
 ### plotLowestCTatminimalCT.m:
-Vergleicht Zielfunktionswerte der alten besten Lösung und der neuen Lösung aus calcBestTimeandCost.m und plottet daraufhin die Lösung mit dem niedrigeren Wert.
+
+Compares objective function values of the old best solution and the new solution from `calcBestTimeandCost.m` and plots the solution with the lower value.
 
 ### genPlotTime.m:
-Plottet das Gantt-Diagramm anhand des Bearbeitungsbeginns und -ende jedes Auftrags. Die Rüstzeiten und die Zeiten in der eine Maschine auf Auftragsfreigabe wartet, sind die Abstände zwischen den "Blöcken" der einzelnen Aufträge.
+
+Plots the Gantt chart based on the start and end of each task. The setup times and the times a machine waits for task release are the distances between the "blocks" of the individual tasks.
 
 ### genPlotCost.m:
-Plottet das Verbrauchsdiagramm des Maschinenbelegungsplans
 
-Die Struktur des Simulated Annealing Algorithmus, sowie die Grundstruktur der Plots sind aus Heris, M. K. (2015): Parallel Machine Scheduling using Simulated Annealing, in: https://yarpiz.com/367/ypap107-parallel-machine-scheduling, Abgerufen am 07.01.2021. entnommen.
+Plots the consumption diagram of the machine allocation plan.
+
+The structure of the Simulated Annealing Algorithm and the basic structure of the plots are adopted from Heris, M. K. (2015): Parallel Machine Scheduling using Simulated Annealing, in: [source](https://yarpiz.com/367/ypap107-parallel-machine-scheduling), Accessed on 07.01.2021.
