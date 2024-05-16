@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/paulffm/Discrete-Time-Diffusion-Models-for-Discrete-Data/blob/main/LICENSE)
 
 Goal: Minimal Energy consumption and minimial processing time
+
 Properties: 
 - different processing time for each job on each machine
 - different sequence dependent setup time for each job on each machine
