@@ -2,13 +2,16 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/paulffm/Discrete-Time-Diffusion-Models-for-Discrete-Data/blob/main/LICENSE)
 
-Goal: Minimal Energy consumption and minimial processing time
+## Overview
 
-Properties: 
-- different processing time for each job on each machine
-- different sequence dependent setup time for each job on each machine
-- different run on-time for each job on each machine 
-- different release time for each job
+This repository is part of my Bachelor's thesis and contains a simulated annealing-based solver for NP-hard job scheduling problems. The objective is to solve the scheduling problem such that the total processing time of the jobs is minimized while also minimizing energy consumption. There are \(I\) machines and \(J\) jobs, where \(I < J\).
+
+### Properties of the Job Scheduling Problem
+
+- Different processing times for each job on each machine
+- Different sequence-dependent setup times for each job on each machine
+- Different run-on times for each job on each machine
+- Different release times for each job
 
 <p align="center">
   <img src="scheduling_time.jpg"  alt="1" width = 560px height = 420px >
